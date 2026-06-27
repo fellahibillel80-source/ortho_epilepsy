@@ -7,23 +7,15 @@ WORKDIR /var/www/html
 RUN apk add --no-cache \
     nginx \
     supervisor \
-    sqlite \
     libzip-dev \
     zip \
     unzip \
     git \
     curl \
-    libpng-dev \
-    libjpeg-turbo-dev \
-    freetype-dev \
-    oniguruma-dev \
-    libxml2-dev \
     postgresql-dev
 
-# Install PHP extensions
-RUN apk add --no-cache sqlite-dev \
-    && docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql zip mbstring exif pcntl bcmath gd opcache
+# Install ONLY essential PHP extensions for Laravel + Postgres
+RUN docker-php-ext-install pdo pdo_pgsql zip opcache
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
