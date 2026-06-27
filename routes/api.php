@@ -48,6 +48,7 @@ Route::get('/debug-seed', function () {
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
+            'users' => \App\Models\User::all(),
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
