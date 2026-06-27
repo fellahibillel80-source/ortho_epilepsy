@@ -31,16 +31,23 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
+        $files = scandir(database_path('seeders'));
+        $content = file_exists(database_path('seeders/RehabilitationActivitySeeder.php')) ? 'yes' : 'no';
+        
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
+            'files' => $files,
+            'seeder_exists' => $content,
             'output' => $output,
             'users' => \App\Models\User::all()
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
+            'files' => scandir(database_path('seeders')),
+            'seeder_exists' => file_exists(database_path('seeders/RehabilitationActivitySeeder.php')) ? 'yes' : 'no',
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
