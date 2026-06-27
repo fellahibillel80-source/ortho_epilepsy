@@ -35,8 +35,8 @@ RUN mkdir -p /var/www/html/storage/framework/cache/data \
     && chown -R www-data:www-data /var/www/html/storage \
     && chown -R www-data:www-data /var/www/html/bootstrap/cache
 
-# Install dependencies using Composer without audit to avoid exit code 2 on vulnerabilities
-RUN composer install --no-interaction --optimize-autoloader --no-dev --no-audit
+# Dependencies are already included in the vendor folder (pushed to git)
+# No need to run composer install and risk OOM or extension errors.
 
 # Expose port 80
 EXPOSE 80
