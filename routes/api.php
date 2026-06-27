@@ -31,25 +31,23 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
-        $files = scandir(database_path('seeders'));
-        $content = file_exists(database_path('seeders/RehabilitationActivitySeeder.php')) ? 'yes' : 'no';
+        $classmapPath = base_path('vendor/composer/autoload_classmap.php');
+        $classmapExists = file_exists($classmapPath);
+        $classmapContent = $classmapExists ? file_get_contents($classmapPath) : null;
+        $hasRehab = $classmapContent ? strpos($classmapContent, 'RehabilitationActivitySeeder') !== false : false;
         
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
-            'files' => $files,
-            'seeder_exists' => $content,
-            'output' => $output,
-            'users' => \App\Models\User::all()
+            'classmap_exists' => $classmapExists,
+            'has_rehab' => $hasRehab,
+            'rehab_class' => class_exists("Database\\Seeders\\RehabilitationActivitySeeder"),
+            'user_class' => class_exists("Database\\Seeders\\UserSeeder"),
+            'seeder_file_exists' => file_exists(database_path('seeders/RehabilitationActivitySeeder.php'))
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'files' => scandir(database_path('seeders')),
-            'seeder_exists' => file_exists(database_path('seeders/RehabilitationActivitySeeder.php')) ? 'yes' : 'no',
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
+            'error' => $e->getMessage()
         ]);
     }
 });
