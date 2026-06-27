@@ -31,6 +31,10 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
+        \Illuminate\Support\Facades\Artisan::call('cache:clear');
+        \Illuminate\Support\Facades\Artisan::call('clear-compiled');
+        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        
         \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
         $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
