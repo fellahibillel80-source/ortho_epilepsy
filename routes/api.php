@@ -68,6 +68,27 @@ Route::get('/debug-seed', function () {
     }
 });
 
+Route::get('/debug-cleanup', function () {
+    try {
+        $deletedSpecialists = \App\Models\User::where('role', 'specialist')
+            ->whereNull('clinic_id')
+            ->delete();
+
+        $deletedPatients = \App\Models\User::where('role', 'patient')
+            ->whereNull('clinic_id')
+            ->delete();
+
+        return response()->json([
+            'status' => 'success',
+            'message' => 'تم تنظيف قاعدة البيانات من الحسابات غير المرتبطة بعيادة.',
+            'deleted_specialists' => $deletedSpecialists,
+            'deleted_patients' => $deletedPatients
+        ]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => $e->getMessage()], 500);
+    }
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
