@@ -23,9 +23,13 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Copy application files
 COPY . /var/www/html
 
-# Copy configurations
+# Copy configurations and fix line endings
 COPY nginx.conf /etc/nginx/http.d/default.conf
 COPY supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+RUN sed -i 's/\r$//' /etc/supervisor/conf.d/supervisord.conf \
+    && sed -i 's/\r$//' /etc/nginx/http.d/default.conf \
+    && mkdir -p /var/log/supervisor \
+    && mkdir -p /run/nginx
 
 # Setup directory permissions for Laravel
 RUN mkdir -p /var/www/html/storage/framework/cache/data \
