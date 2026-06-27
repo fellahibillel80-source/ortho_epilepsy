@@ -31,6 +31,9 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
+        if (function_exists('opcache_reset')) {
+            opcache_reset();
+        }
         \Illuminate\Support\Facades\Artisan::call('cache:clear');
         \Illuminate\Support\Facades\Artisan::call('clear-compiled');
         \Illuminate\Support\Facades\Artisan::call('optimize:clear');
