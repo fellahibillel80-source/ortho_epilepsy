@@ -31,24 +31,23 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
-        if (function_exists('opcache_reset')) {
-            opcache_reset();
-        }
-        \Illuminate\Support\Facades\Artisan::call('cache:clear');
-        \Illuminate\Support\Facades\Artisan::call('clear-compiled');
-        \Illuminate\Support\Facades\Artisan::call('optimize:clear');
+        // Run seed logic directly to bypass autoloader issues
+        \App\Models\User::firstOrCreate(
+            ['email' => 'test@test.com'],
+            ['name' => 'المريض تجربة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'patient']
+        );
+        \App\Models\User::firstOrCreate(
+            ['email' => 'specialist@test.com'],
+            ['name' => 'الدكتور', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'specialist']
+        );
         
-        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
-        $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
-            'output' => $output,
             'users' => \App\Models\User::all()
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'users' => \App\Models\User::all(),
             'error' => $e->getMessage(),
             'trace' => $e->getTraceAsString()
         ]);
