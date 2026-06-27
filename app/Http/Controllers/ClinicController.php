@@ -92,37 +92,51 @@ class ClinicController extends Controller
     // Clinic Admin (or Super Admin) : List specialists in a clinic
     public function getSpecialists(Request $request)
     {
-        $user = $request->user();
-        // Super admin can specify clinic_id, otherwise use own clinic_id
-        $clinicId = $user->clinic_id;
-        if ($user->role === 'super_admin' && $request->has('clinic_id')) {
-            $clinicId = $request->query('clinic_id');
+        try {
+            $user = $request->user();
+            // Super admin can specify clinic_id, otherwise use own clinic_id
+            $clinicId = $user->clinic_id;
+            if ($user->role === 'super_admin' && $request->has('clinic_id')) {
+                $clinicId = $request->query('clinic_id');
+            }
+            if (!$clinicId) {
+                return response()->json(['message' => 'غير مصرح لك.'], 403);
+            }
+            $specialists = User::where('clinic_id', $clinicId)
+                               ->where('role', 'specialist')
+                               ->get();
+            return response()->json($specialists);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
-        if (!$clinicId) {
-            return response()->json(['message' => 'غير مصرح لك.'], 403);
-        }
-        $specialists = User::where('clinic_id', $clinicId)
-                           ->where('role', 'specialist')
-                           ->get();
-        return response()->json($specialists);
     }
 
     // Clinic Admin (or Super Admin) : Get all patients registered in a clinic
     public function getPatients(Request $request)
     {
-        $user = $request->user();
-        $clinicId = $user->clinic_id;
-        if ($user->role === 'super_admin' && $request->has('clinic_id')) {
-            $clinicId = $request->query('clinic_id');
+        try {
+            $user = $request->user();
+            $clinicId = $user->clinic_id;
+            if ($user->role === 'super_admin' && $request->has('clinic_id')) {
+                $clinicId = $request->query('clinic_id');
+            }
+            if (!$clinicId) {
+                return response()->json(['message' => 'غير مصرح لك.'], 403);
+            }
+            $patients = User::where('clinic_id', $clinicId)
+                            ->where('role', 'patient')
+                            ->with('specialists')
+                            ->get();
+            return response()->json($patients);
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString()
+            ], 500);
         }
-        if (!$clinicId) {
-            return response()->json(['message' => 'غير مصرح لك.'], 403);
-        }
-        $patients = User::where('clinic_id', $clinicId)
-                        ->where('role', 'patient')
-                        ->with('specialists')
-                        ->get();
-        return response()->json($patients);
     }
 
     // Super Admin: Update clinic details and subscription
