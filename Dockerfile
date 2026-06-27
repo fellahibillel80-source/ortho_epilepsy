@@ -21,7 +21,9 @@ RUN apk add --no-cache \
     postgresql-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_sqlite pdo_pgsql zip mbstring exif pcntl bcmath gd opcache
+RUN apk add --no-cache sqlite-dev \
+    && docker-php-ext-configure gd --with-freetype --with-jpeg \
+    && docker-php-ext-install pdo pdo_sqlite pdo_pgsql zip mbstring exif pcntl bcmath gd opcache
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
