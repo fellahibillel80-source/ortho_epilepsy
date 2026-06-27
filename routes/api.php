@@ -40,6 +40,14 @@ Route::get('/debug-seed', function () {
             ['email' => 'specialist@test.com'],
             ['name' => 'الدكتور', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'specialist']
         );
+        \App\Models\User::firstOrCreate(
+            ['email' => 'admin@test.com'],
+            ['name' => 'مدير العيادة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'clinic_admin']
+        );
+        \App\Models\User::firstOrCreate(
+            ['email' => 'super@test.com'],
+            ['name' => 'المدير العام', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'super_admin']
+        );
         
         return response()->json([
             'status' => 'success',
