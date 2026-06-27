@@ -1,0 +1,17 @@
+.git
+.github
+vendor
+node_modules
+storage/framework/cache/data/*
+storage/framework/sessions/*
+storage/framework/views/*
+storage/logs/*
+database/database.sqlite
+.env
+Dockerfile
+docker-compose.yml
+.dockerignore
+tests
+README.md
+phpunit.xml
+composer.lock

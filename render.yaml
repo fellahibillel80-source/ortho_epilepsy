@@ -1,0 +1,44 @@
+databases:
+  - name: milmat-db
+    databaseName: milmat
+    user: milmat_user
+    plan: free
+
+services:
+  - type: web
+    name: milmat-backend
+    env: php
+    plan: free
+    buildCommand: "./build.sh"
+    startCommand: "php -S 0.0.0.0:$PORT -t public"
+    envVars:
+      - key: APP_NAME
+        value: Milmat
+      - key: APP_ENV
+        value: production
+      - key: APP_KEY
+        generateValue: true
+      - key: APP_DEBUG
+        value: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: milmat-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: milmat-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: milmat-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: milmat-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: milmat-db
+          property: password

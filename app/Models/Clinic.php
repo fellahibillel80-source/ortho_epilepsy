@@ -1,0 +1,26 @@
+<?php
+
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+
+class Clinic extends Model
+{
+    use HasFactory;
+
+    protected $fillable = [
+        'name',
+        'address',
+        'phone',
+        'status',
+        'subscription_status',
+        'subscription_plan',
+        'subscription_ends_at',
+    ];
+
+    public function users()
+    {
+        return $this->hasMany(User::class);
+    }
+}
