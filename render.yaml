@@ -7,10 +7,8 @@ databases:
 services:
   - type: web
     name: milmat-backend
-    env: php
+    env: docker
     plan: free
-    buildCommand: "./build.sh"
-    startCommand: "php -S 0.0.0.0:$PORT -t public"
     envVars:
       - key: APP_NAME
         value: Milmat

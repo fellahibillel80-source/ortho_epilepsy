@@ -17,10 +17,11 @@ RUN apk add --no-cache \
     libjpeg-turbo-dev \
     freetype-dev \
     oniguruma-dev \
-    libxml2-dev
+    libxml2-dev \
+    postgresql-dev
 
 # Install PHP extensions
-RUN docker-php-ext-install pdo pdo_sqlite zip mbstring exif pcntl bcmath gd opcache
+RUN docker-php-ext-install pdo pdo_sqlite pdo_pgsql zip mbstring exif pcntl bcmath gd opcache
 
 # Get latest Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
