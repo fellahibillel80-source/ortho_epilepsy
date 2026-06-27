@@ -31,23 +31,18 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
-        $classmapPath = base_path('vendor/composer/autoload_classmap.php');
-        $classmapExists = file_exists($classmapPath);
-        $classmapContent = $classmapExists ? file_get_contents($classmapPath) : null;
-        $hasRehab = $classmapContent ? strpos($classmapContent, 'RehabilitationActivitySeeder') !== false : false;
-        
+        \Illuminate\Support\Facades\Artisan::call('db:seed', ['--force' => true]);
+        $output = \Illuminate\Support\Facades\Artisan::output();
         return response()->json([
             'status' => 'success',
-            'classmap_exists' => $classmapExists,
-            'has_rehab' => $hasRehab,
-            'rehab_class' => class_exists("Database\\Seeders\\RehabilitationActivitySeeder"),
-            'user_class' => class_exists("Database\\Seeders\\UserSeeder"),
-            'seeder_file_exists' => file_exists(database_path('seeders/RehabilitationActivitySeeder.php'))
+            'output' => $output,
+            'users' => \App\Models\User::all()
         ]);
     } catch (\Exception $e) {
         return response()->json([
             'status' => 'error',
-            'error' => $e->getMessage()
+            'error' => $e->getMessage(),
+            'trace' => $e->getTraceAsString()
         ]);
     }
 });
