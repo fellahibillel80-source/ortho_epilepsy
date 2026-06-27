@@ -41,8 +41,9 @@ RUN mkdir -p /var/www/html/storage/framework/cache/data \
 # Expose port 80
 EXPOSE 80
 
-# Make entrypoint script executable
-RUN chmod +x /var/www/html/docker-entrypoint.sh
+# Make entrypoint script executable and fix Windows line endings
+RUN chmod +x /var/www/html/docker-entrypoint.sh \
+    && sed -i 's/\r$//' /var/www/html/docker-entrypoint.sh
 
 # Use entrypoint
 ENTRYPOINT ["/var/www/html/docker-entrypoint.sh"]
