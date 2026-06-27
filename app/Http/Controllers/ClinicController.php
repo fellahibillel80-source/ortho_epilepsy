@@ -197,4 +197,43 @@ class ClinicController extends Controller
             'patient' => $patient,
         ], 201);
     }
+    // Clinic Admin: Get clinic info
+    public function getClinicInfo(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== 'clinic_admin' || !$user->clinic_id) {
+            return response()->json(['message' => 'غير مصرح.'], 403);
+        }
+        $clinic = Clinic::findOrFail($user->clinic_id);
+        return response()->json($clinic);
+    }
+
+    // Clinic Admin: Update Profile
+    public function updateProfile(Request $request)
+    {
+        $user = $request->user();
+        if ($user->role !== 'clinic_admin') {
+            return response()->json(['message' => 'غير مصرح.'], 403);
+        }
+
+        $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'password' => 'nullable|string|min:8',
+        ]);
+
+        $user->name = $validated['name'];
+        $user->email = $validated['email'];
+        
+        if (!empty($validated['password'])) {
+            $user->password = Hash::make($validated['password']);
+        }
+        
+        $user->save();
+
+        return response()->json([
+            'message' => 'تم تحديث الملف الشخصي بنجاح.',
+            'user' => $user
+        ]);
+    }
 }

@@ -85,6 +85,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/clinic/specialists', [ClinicController::class, 'registerSpecialist']);
     Route::get('/clinic/specialists', [ClinicController::class, 'getSpecialists']);
     Route::post('/clinic/patients', [ClinicController::class, 'registerPatient']);
+    Route::get('/clinic/info', [ClinicController::class, 'getClinicInfo']);
+    Route::put('/clinic/profile', [ClinicController::class, 'updateProfile']);
 
     // Patient-Specialist Linking
     Route::post('/specialist/patients/invite', [PatientSpecialistController::class, 'linkPatient']);
