@@ -11,6 +11,7 @@ chown -R www-data:www-data /var/www/html/database
 chown www-data:www-data /var/www/html/database/database.sqlite
 
 # Run migrations and seed
+composer dump-autoload -o
 php artisan migrate --force
 php artisan db:seed --force
 
