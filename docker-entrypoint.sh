@@ -10,8 +10,9 @@ fi
 chown -R www-data:www-data /var/www/html/database
 chown www-data:www-data /var/www/html/database/database.sqlite
 
-# Run migrations
+# Run migrations and seed
 php artisan migrate --force
+php artisan db:seed --force
 
 # Cache configuration, routes, and views for production
 php artisan config:cache
