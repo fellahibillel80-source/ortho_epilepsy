@@ -89,6 +89,15 @@ Route::get('/debug-cleanup', function () {
     }
 });
 
+Route::get('/debug-log', function () {
+    $logFile = storage_path('logs/laravel.log');
+    if (!file_exists($logFile)) {
+        return "Log file not found.";
+    }
+    $lines = file($logFile);
+    return implode("", array_slice($lines, -100));
+});
+
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/user', function (Request $request) {
         return $request->user();
