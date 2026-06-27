@@ -16,7 +16,9 @@ class ClinicController extends Controller
             return response()->json(['message' => 'غير مصرح لك بالوصول.'], 403);
         }
 
-        $clinics = Clinic::withCount('users')->get();
+        $clinics = Clinic::with(['users' => function($q) {
+            $q->where('role', 'clinic_admin');
+        }])->withCount('users')->get();
         return response()->json($clinics);
     }
 
@@ -101,7 +103,7 @@ class ClinicController extends Controller
         return response()->json($specialists);
     }
 
-    // Super Admin: Update subscription details
+    // Super Admin: Update clinic details and subscription
     public function updateSubscription(Request $request, $id)
     {
         if ($request->user()->role !== 'super_admin') {
@@ -110,15 +112,37 @@ class ClinicController extends Controller
 
         $clinic = Clinic::findOrFail($id);
         $validated = $request->validate([
+            'name' => 'required|string|max:255',
+            'phone' => 'nullable|string|max:255',
+            'address' => 'nullable|string|max:255',
             'subscription_status' => 'required|string|in:active,suspended,expired',
             'subscription_plan' => 'required|string|in:standard,premium',
             'subscription_ends_at' => 'nullable|date',
+            'admin_id' => 'required|exists:users,id',
+            'admin_name' => 'required|string|max:255',
+            'admin_email' => 'required|string|email|max:255|unique:users,email,' . $request->admin_id,
+            'admin_password' => 'nullable|string|min:8',
         ]);
 
-        $clinic->update($validated);
+        $clinic->update([
+            'name' => $validated['name'],
+            'phone' => $validated['phone'],
+            'address' => $validated['address'],
+            'subscription_status' => $validated['subscription_status'],
+            'subscription_plan' => $validated['subscription_plan'],
+            'subscription_ends_at' => $validated['subscription_ends_at'],
+        ]);
+
+        $admin = User::findOrFail($validated['admin_id']);
+        $admin->name = $validated['admin_name'];
+        $admin->email = $validated['admin_email'];
+        if (!empty($validated['admin_password'])) {
+            $admin->password = Hash::make($validated['admin_password']);
+        }
+        $admin->save();
 
         return response()->json([
-            'message' => 'تم تحديث تفاصيل الاشتراك المالي للعيادة بنجاح.',
+            'message' => 'تم تحديث بيانات العيادة وحساب المدير والاشتراك بنجاح.',
             'clinic' => $clinic
         ]);
     }

@@ -31,34 +31,40 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/debug-seed', function () {
     try {
-        // Run seed logic directly to bypass autoloader issues
+        $clinic = \App\Models\Clinic::firstOrCreate(
+            ['name' => 'عيادة الأمل التجريبية'],
+            ['address' => 'شارع التميز، العاصمة', 'phone' => '0555555555']
+        );
+
         \App\Models\User::firstOrCreate(
             ['email' => 'test@test.com'],
-            ['name' => 'المريض تجربة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'patient']
+            ['name' => 'المريض تجربة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'patient', 'clinic_id' => $clinic->id]
         );
         \App\Models\User::firstOrCreate(
             ['email' => 'specialist@test.com'],
-            ['name' => 'الدكتور', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'specialist']
+            ['name' => 'الدكتور', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'specialist', 'clinic_id' => $clinic->id]
         );
         \App\Models\User::firstOrCreate(
             ['email' => 'admin@test.com'],
-            ['name' => 'مدير العيادة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'clinic_admin']
+            ['name' => 'مدير العيادة', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'clinic_admin', 'clinic_id' => $clinic->id]
         );
         \App\Models\User::firstOrCreate(
             ['email' => 'super@test.com'],
             ['name' => 'المدير العام', 'password' => \Illuminate\Support\Facades\Hash::make('12345678'), 'role' => 'super_admin']
         );
         
+        // Also update existing ones if they exist but have null clinic_id
+        \App\Models\User::whereIn('email', ['test@test.com', 'specialist@test.com', 'admin@test.com'])
+            ->whereNull('clinic_id')
+            ->update(['clinic_id' => $clinic->id]);
+
         return response()->json([
             'status' => 'success',
-            'users' => \App\Models\User::all()
+            'users' => \App\Models\User::all(),
+            'clinic' => $clinic
         ]);
     } catch (\Exception $e) {
-        return response()->json([
-            'status' => 'error',
-            'error' => $e->getMessage(),
-            'trace' => $e->getTraceAsString()
-        ]);
+        return response()->json(['error' => $e->getMessage()], 500);
     }
 });
 
