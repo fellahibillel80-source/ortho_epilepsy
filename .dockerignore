@@ -1,6 +1,5 @@
 .git
 .github
-vendor
 node_modules
 storage/framework/cache/data/*
 storage/framework/sessions/*
@@ -14,4 +13,3 @@ docker-compose.yml
 tests
 README.md
 phpunit.xml
-composer.lock
