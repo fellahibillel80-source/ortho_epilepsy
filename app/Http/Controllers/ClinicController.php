@@ -183,21 +183,7 @@ class ClinicController extends Controller
         ]);
     }
 
-    // Clinic Admin: Get all patients registered in this clinic
-    public function getPatients(Request $request)
-    {
-        $user = $request->user();
-        if ($user->role !== 'clinic_admin' || !$user->clinic_id) {
-            return response()->json(['message' => 'غير مصرح.'], 403);
-        }
 
-        $patients = User::where('clinic_id', $user->clinic_id)
-                        ->where('role', 'patient')
-                        ->with('specialists')
-                        ->get();
-
-        return response()->json($patients);
-    }
 
     // Clinic Admin: Link a patient directly to a specialist in this clinic
     public function linkPatientSpecialist(Request $request)
