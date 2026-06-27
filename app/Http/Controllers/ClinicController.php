@@ -89,18 +89,40 @@ class ClinicController extends Controller
         ], 201);
     }
 
-    // Clinic Admin: List specialists in this clinic
+    // Clinic Admin (or Super Admin) : List specialists in a clinic
     public function getSpecialists(Request $request)
     {
         $user = $request->user();
-        if ($user->role !== 'clinic_admin' || !$user->clinic_id) {
+        // Super admin can specify clinic_id, otherwise use own clinic_id
+        $clinicId = $user->clinic_id;
+        if ($user->role === 'super_admin' && $request->has('clinic_id')) {
+            $clinicId = $request->query('clinic_id');
+        }
+        if (!$clinicId) {
             return response()->json(['message' => 'غير مصرح لك.'], 403);
         }
-
-        $specialists = User::where('clinic_id', $user->clinic_id)
+        $specialists = User::where('clinic_id', $clinicId)
                            ->where('role', 'specialist')
                            ->get();
         return response()->json($specialists);
+    }
+
+    // Clinic Admin (or Super Admin) : Get all patients registered in a clinic
+    public function getPatients(Request $request)
+    {
+        $user = $request->user();
+        $clinicId = $user->clinic_id;
+        if ($user->role === 'super_admin' && $request->has('clinic_id')) {
+            $clinicId = $request->query('clinic_id');
+        }
+        if (!$clinicId) {
+            return response()->json(['message' => 'غير مصرح لك.'], 403);
+        }
+        $patients = User::where('clinic_id', $clinicId)
+                        ->where('role', 'patient')
+                        ->with('specialists')
+                        ->get();
+        return response()->json($patients);
     }
 
     // Super Admin: Update clinic details and subscription
